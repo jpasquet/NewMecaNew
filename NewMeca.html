@@ -1,0 +1,392 @@
+<!doctype html>
+
+<html style="min-width:1000px;">
+<head>
+	<link rel="stylesheet" href="lib/jquery-ui.min.css">
+	<link rel="stylesheet" href="NewMeca.css">
+	<script src="lib/jquery-3.6.0.min.js"></script>
+	<script src="lib/jquery-ui.min.js"></script>
+	<script src="lib/tableToCsv.js"></script>
+	<script src="NewMeca.js"></script>
+	<script>		
+			user = new User();
+	</script>
+</head>
+
+
+
+
+
+<body>
+
+<div class="header">
+	<img src="icons/logo_newmeca.jpg"/>
+	<p><b></br></br>Bienvenue dans le logiciel NewMeca </b></br>
+	<small>&copy;2020 Johanna Pasquet</small>
+	</p>
+</div>
+
+<div class="ChooseVideoDiv">
+Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video" type="file" accept="video/*"> 
+</div>
+
+<div class="MenuPartDiv">
+	<p>
+	  <label for="spinner">Image par seconde (FPS)</label>
+	  <input id="spinner" name="spinner" value="30.0">
+	</p>
+	<p>		
+		<div class="container_axe">
+			
+			<button id="select_choix_axeA"    class=" select_choix_axe mybuttonTiny ui-button ui-widget ui-corner-all">Inverser les axes X et Y</button>
+			<button id="select_choix_axeB"    class="select_choix_axe mybuttonTiny ui-button ui-widget ui-corner-all">Inverser l'orientation de l'abcisse</button>
+			<button id="select_choix_axeC"    class=" select_choix_axe mybuttonTiny ui-button ui-widget ui-corner-all">Inverser l'orientation de l'ordonnée</button>		
+			
+		
+			<button id="choix_axe"    class="mybutton ui-button ui-widget ui-corner-all">1. Fixer les axes</button>
+			
+
+    		<button id="choix_d"       disabled class="mybutton ui-button ui-widget ui-corner-all">2. Fixer une distance</button>
+      		<button id="choix_debut"   disabled  class="mybutton ui-button ui-widget ui-corner-all">3. Construire la chronophotographie</button>
+      		<button id="reset_but"   disabled  class="mybutton ui-button ui-widget ui-corner-all">Tout réinitialiser</button>
+		</div>
+	</p>        
+</div>
+
+
+  
+<div class="VideoPartDiv">
+
+
+	<div  id="cadre_v" ><!---overflow: hidden; -->
+  	  	<div  class="menuvideo">
+			<img  id="Frame_prec" src="icons/b1.png"></img>
+			<img  id="Frame_prec5"  src="icons/b.png"></img>
+			<img  id="Frame_play" src="icons/play.png"></img>
+			<img  id="Frame_suivante" src="icons/a1.png"></img>
+			<img  id="Frame_suivante5" src="icons/a.png"></img>
+			<img  id="Frame_rewind" src="icons/r.png"></img>
+		</div>
+	
+		<div  style="width: 100%; float:left;">
+			<div id="parent_video"> 
+			<video id="v0"  tabindex="0" preload autobuffer>
+				<source  id="source_video" type="video/mp4" src=""></source>
+				<p>Sorry, your browser does not support the &lt;video&gt; element. 			controls</p>
+			</video>
+			
+			<div id="draggable_axis" style="margin:0px;left:0px;top:-200px;padding:0px;">
+				<img src="images/axis_1.png" />
+			</div>
+  	  	</div>
+	
+	
+  	  	<div  id="obs_div">
+			<table id="obs"></table>
+			<button id="export"> Exporter en CSV </button>
+		</div>
+	
+	</div>
+</div>
+
+</body>
+
+</html>
+
+
+
+  <script>
+  
+  $( function() {
+    $( "#spinner" ).spinner({
+      step: 0.01,
+      numberFormat: "n"
+    });
+ 
+  $( "#select_choix_axeA" ).click( function( event ) {
+        			user.inverseXY();
+	 } );
+   $( "#select_choix_axeB" ).click( function( event ) {
+        			user.inverseX();
+	 } );
+  $( "#select_choix_axeC" ).click( function( event ) {
+        			user.inverseY();
+	 } );
+    
+  } );
+ 
+ 
+
+//$(".MenuPartDiv").hide();
+$(".VideoPartDiv").hide();
+
+$(document).on("change", "#load_video", function(evt) {
+	var $source = $('#source_video');
+	$source[0].src = URL.createObjectURL(this.files[0]);
+	$source.parent()[0].load();
+	
+	user.changeStep(Etape.EtapeFixerAxes);
+});
+
+
+
+
+
+var unite_d=1.0;
+var p0x=0, p0y=0;
+var p1x=0, p1y=0;
+var el_id_obs = 0;
+
+var vid = $('#v0')[0];
+var vidcc = $("#parent_video")[0];//$('#v0')[0];
+
+var TEMPS_RATE=$( "#spinner" ).val();//29.0;
+
+
+function onDeleteClick(id) {
+$("#obs"+id).remove();
+$("#tr"+id).remove();
+
+}
+
+
+$("#parent_video").click(function(event ) {
+	if (user.current_step.name==Etape.EtapeChronophotographie.name){		
+		CX = 100;
+		CY = 100;
+	    var parentOffset = $(this).parent().offset(); 
+
+	    ptx1 = event.pageX - parentOffset.left;
+        pty1 = event.pageY  - parentOffset.top;
+		
+		relX = $( "#draggable_axis" ).position().left + CX ;//;
+		relY = $( "#draggable_axis" ).position().top  + CY ;//;
+
+
+		console.log(ptx1.toString()+" "+pty1.toString()+" "+relX.toString()+" "+relY.toString()+" ");
+		switch (user.axe.id) {
+  		case Axe.Axe_X_Y.id:
+			ptx =	ptx1 - relX
+			pty =  -pty1 + relY
+		break;
+    	case Axe.Axe_Y_X.id:
+    		pty = ptx1 - relX
+			ptx = -pty1 + relY
+    	break;
+    	case Axe.Axe_MX_Y.id:
+    		ptx = -ptx1 + relX
+			pty = -pty1 + relY
+    	break;
+    	case Axe.Axe_MY_X.id:
+    		pty = -ptx1 + relX
+			ptx = -pty1 + relY
+    	break;
+    	case Axe.Axe_X_MY.id:
+    		ptx = ptx1 - relX
+			pty = pty1 - relY
+    	break;
+    	case Axe.Axe_Y_MX.id:
+    		pty = ptx1 - relX
+			ptx = pty1 - relY
+    	break;
+    	case Axe.Axe_MX_MY.id:
+    		ptx = -ptx1 + relX
+			pty = pty1 - relY
+    	break;
+    	case Axe.Axe_MY_MX.id:
+    		pty = -ptx1 + relX
+			ptx = pty1 - relY
+    	break;
+	}
+			
+			
+	el_id_obs+=1;
+	
+			
+			
+
+	if (isNaN(ptx)){
+                    
+	}else{
+    	$("html").append("<div class='zz' id='obs"+el_id_obs+"' style='top:"+(event.pageY-2)+"px;left:"+(event.pageX-2)+"px;'></div>");
+
+		dp = unite_d/Math.sqrt((p0x-p1x)*(p0x-p1x)+(p0y-p1y)*(p0y-p1y));
+			
+	
+	
+		$( "#obs" ).append(
+			"<tr id='tr"+el_id_obs+"'><td>"+parseFloat(vid.currentTime).toFixed(3).replace(".", ",")+" </td><td> "+parseFloat((ptx)*dp).toFixed(3).replace(".", ",")+" </td><td> " +parseFloat((pty)*dp).toFixed(3).replace(".", ",")+"</td><td><button onclick='onDeleteClick("+el_id_obs+")'	 type='button' class='delete-button'>&#x2716;</button></td></tr>");
+			
+			
+        vid.currentTime += (1 / TEMPS_RATE);		
+		}
+	}
+});
+
+
+
+$("#v0").bind("ended", function() {
+	playOrStopLogo();
+});
+
+
+
+
+
+vidcc.onclick = function(e) {
+	TEMPS_RATE=$( "#spinner" ).val();
+    if (user.current_step.name==Etape.EtapeFixerDistanceB.name){
+        user.changeStep(Etape.EtapeFixerDistanceC);    
+        p0x = e.clientX + window.pageXOffset;
+        p0y = e.clientY + window.pageYOffset;
+        e.preventDefault();
+    }
+    else if (user.current_step.name==Etape.EtapeFixerDistanceC.name){
+            p1x = e.clientX + window.pageXOffset;
+            p1y = e.clientY + window.pageYOffset;
+            e.preventDefault();
+            
+            user.changeStep(Etape.EtapeFixerDistance);    
+
+        } 
+    else if (user.current_step.name==Etape.EtapeChronophotographie.name){
+    }
+    else{
+      if (vid.paused)
+         vid.play();
+      else 
+		vid.pause();
+		
+	playOrStopLogo();
+
+    }
+    
+};
+
+
+    $( function() {
+        $( "#Frame_suivante" ).click( function( event ) {
+		   TEMPS_RATE=$( "#spinner" ).val();
+           vid.currentTime += (1 / TEMPS_RATE);
+        } );
+    
+        $( "#Frame_prec" ).click( function( event ) {
+		 TEMPS_RATE=$( "#spinner" ).val();
+           vid.currentTime -= (1 / TEMPS_RATE    );
+        } );
+    
+        $( "#Frame_suivante5" ).click( function( event ) {
+			TEMPS_RATE=$( "#spinner" ).val();
+           vid.currentTime += (5 / TEMPS_RATE);
+        } );
+    
+        $( "#Frame_prec5" ).click( function( event ) {
+			TEMPS_RATE=$( "#spinner" ).val();
+           vid.currentTime -= (5 / TEMPS_RATE);
+        } );
+   
+        $( "#Frame_rewind" ).click( function( event ) {
+			TEMPS_RATE=$( "#spinner" ).val();
+           vid.currentTime = 0.0;
+        } );
+        
+        
+    
+	  $( "#Frame_play" ).click( function( event ) {
+          	if (vid.paused)
+           		vid.play();
+     		 else 
+           		vid.pause();
+           playOrStopLogo();
+        } );
+    } );
+
+
+
+	function playOrStopLogo() {
+	if (vid.paused || vid.ended)
+         $( "#Frame_play" ).attr("src", "icons/play.png")
+      else 
+         $( "#Frame_play" ).attr("src", "icons/stop.png")
+	
+	}
+
+
+
+
+
+  $( function() {
+    $( "#choix_axe" ).click( function( event ) {
+    	user.changeStep(Etape.EtapeFixerDistanceA);
+    } );
+  } );
+  
+  
+  
+  
+  $( function() {
+    $( "#choix_d" ).click( function( event ) {
+        user.changeStep(Etape.EtapeFixerDistanceB);
+    } );
+  } );
+  
+  $( function() {
+    $( "#reset_but" ).click( function( event ) {
+        $( "#obs" ).html("");
+    	$(".zz").remove();
+        user.changeStep(Etape.EtapeFixerAxes);
+        
+        $( "#choix_d" ).attr("disabled", true);
+        $( "#choix_d" ).attr("disabled", true);
+    	$( "#choix_debut" ).attr("disabled", true);
+    	$( "#choix_axe" ).attr("disabled", false);
+    	$( ".select_choix_axe" ).attr("disabled", false);
+    	$(".isCheck").removeClass("isCheck");
+		$( "#draggable_axis" ).draggable( "disable", false );
+		$( "#draggable_axis" ).draggable( "enable" );
+
+
+    } );
+  } );
+  
+  
+   $( function() {
+    $( "#choix_debut" ).click( function( event ) {
+        user.changeStep(Etape.EtapeChronophotographie);
+        /*vid.currentTime = 0.0;
+		vid.currentTime = 0;*/
+		vid.pause();
+		playOrStopLogo();
+
+	 } );
+  } );
+  
+  
+  
+  
+  
+  
+  
+  
+  $('#export').click(function() {
+  let csv = $('#obs').tableToCsv({
+    autoDownload: true,
+	separator:';',
+    filename:'mon_exp.csv'
+  });
+});
+  
+
+</script>
+
+
+
+
+ 
+<div id="dialog-message" title="Relation Pixel-Distance" style="display:none;">
+  <p>
+    <span class="ui-icon ui-icon-circle-check" style="float:left; margin:0 7px 50px 0;"></span>
+	Vous devez cliquer sur deux points et indiquer la distance. Cliquez sur le premier point !  </p>
+</div>
+
+
