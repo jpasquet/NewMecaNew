@@ -3,6 +3,7 @@
 	margin:0px;
 	padding:0px;
 	.border: 1px dotted black;
+	  overflow: hidden; 
 }
 
 
@@ -143,6 +144,8 @@
 	width:250px;
 	top:310px;
 	right:10px;
+	overflow: auto;
+
 }
 .VideoPartDiv #cadre_v{
 	width: -moz-calc(100% - 260px);
@@ -292,6 +295,7 @@ button[disabled]{
 
 
 body{
+	  overflow: auto;
 }
 
 
