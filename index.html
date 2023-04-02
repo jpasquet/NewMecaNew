@@ -1,11 +1,34 @@
 <!doctype html>
 
-<html style="min-width:1000px;">
+<html>
 <head>
-	<link rel="stylesheet" href="lib/jquery-ui.min.css">
-	<link rel="stylesheet" href="NewMeca.css">
+	
+	<!--
 	<script src="lib/jquery-3.6.0.min.js"></script>
-	<script src="lib/jquery-ui.min.js"></script>
+			<script src="lib/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="lib/jquery-ui.min.css">
+<link rel="stylesheet" href="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.css" />
+		<script src="https://code.jquery.com/mobile/1.4.5/jquery.mobile-1.4.5.min.js"></script>
+
+	-->
+		<link href="https://code.jquery.com/ui/1.13.1/themes/smoothness/jquery-ui.css" rel ="stylesheet">	
+
+	<link rel="stylesheet" href="NewMeca.css">
+
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LPPXDKRW8Z"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LPPXDKRW8Z');
+</script>
+
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.13.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
+
+	
 	<script src="lib/tableToCsv.js"></script>
 	<script src="NewMeca.js"></script>
 	<script>		
@@ -75,19 +98,28 @@ Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video"
 				<p>Sorry, your browser does not support the &lt;video&gt; element. 			controls</p>
 			</video>
 			
-			<div id="draggable_axis" style="margin:0px;left:0px;top:-200px;padding:0px;">
+		
+			<div id="draggable_axis" style="margin:0px;left:0px;top:0px;padding:0px;">
 				<img src="images/axis_1.png" />
 			</div>
-  	  	</div>
-	
-	
-  	  	<div  id="obs_div">
+			
+
+  	  		</div>
+  	  		
+  	  		<div  id="obs_div">
 			<table id="obs"></table>
 			<button id="export"> Exporter en CSV </button>
 		</div>
+		</div>
+		
+
 	
 	</div>
+	
+	  	  	
 </div>
+
+
 
 </body>
 
@@ -117,7 +149,7 @@ Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video"
  
  
 
-//$(".MenuPartDiv").hide();
+$(".MenuPartDiv").hide();
 $(".VideoPartDiv").hide();
 
 $(document).on("change", "#load_video", function(evt) {
@@ -126,6 +158,21 @@ $(document).on("change", "#load_video", function(evt) {
 	$source.parent()[0].load();
 	
 	user.changeStep(Etape.EtapeFixerAxes);
+	
+  var elements = $('*');
+
+  elements.each(function() {
+  
+  $(this).css({
+    'resize': 'none',
+    'overflow': 'scroll' // Bloquer les dimensions et masquer le contenu débordant avec CSS
+  });
+
+    $(this).on('resize', function(event) {
+      event.preventDefault(); // Empêcher le redimensionnement avec JavaScript
+    });
+  });
+	
 });
 
 
@@ -146,8 +193,18 @@ var TEMPS_RATE=$( "#spinner" ).val();//29.0;
 function onDeleteClick(id) {
 $("#obs"+id).remove();
 $("#tr"+id).remove();
-
 }
+
+function addColorClass(id) {
+$("#obs"+id).addClass("obs_color_over");
+}
+
+function removeColorClass(id) {
+$("#obs"+id).removeClass("obs_color_over");
+}
+
+
+				
 
 
 $("#parent_video").click(function(event ) {
@@ -215,13 +272,26 @@ $("#parent_video").click(function(event ) {
 	
 	
 		$( "#obs" ).append(
-			"<tr id='tr"+el_id_obs+"'><td>"+parseFloat(vid.currentTime).toFixed(3).replace(".", ",")+" </td><td> "+parseFloat((ptx)*dp).toFixed(3).replace(".", ",")+" </td><td> " +parseFloat((pty)*dp).toFixed(3).replace(".", ",")+"</td><td><button onclick='onDeleteClick("+el_id_obs+")'	 type='button' class='delete-button'>&#x2716;</button></td></tr>");
+			"<tr onmouseenter='addColorClass("+el_id_obs+")' onmouseleave='removeColorClass("+el_id_obs+")'	 id='tr"+el_id_obs+"'><td>"+parseFloat(vid.currentTime).toFixed(3).replace(".", ",")+" </td><td> "+parseFloat((ptx)*dp).toFixed(3).replace(".", ",")+" </td><td> " +parseFloat((pty)*dp).toFixed(3).replace(".", ",")+"</td><td><button onclick='onDeleteClick("+el_id_obs+")'	 type='button' class='delete-button'>&#x2716;</button></td></tr>");
+			
 			
 			
         vid.currentTime += (1 / TEMPS_RATE);		
 		}
 	}
+	
+	
+	
+	
+	
+	
 });
+
+
+
+
+
+
 
 
 
@@ -231,7 +301,31 @@ $("#v0").bind("ended", function() {
 
 
 
+var container = $("#parent_video");
+var point1, point2, segment, val=false;
 
+ 
+container.mousemove(function(e){
+		//point2.css({left:  e.clientX - 3 +window.pageXOffset, top: e.clientY - 3+window.pageYOffset});
+		if(val){
+		    var ppptx1 = e.pageX ;//- $(this).left;
+            var pppty1 = e.pageY ;// - $(this).top;
+			point2.css({left: ppptx1 - 3, top: pppty1 - 3});
+			var x1 = point1.position().left;
+			var y1 = point1.position().top;
+			var x2 = point2.position().left;
+			var y2 = point2.position().top;
+			var angle = Math.atan2(y2-y1, x2-x1);
+			var distance = Math.sqrt((y2-y1)*(y2-y1) + (x2-x1)*(x2-x1));
+			segment.css({width: distance, transform: "rotate(" + angle + "rad)"});
+			segment.css({left: (x1+x2)/2 - distance/2+ 3});
+			segment.css({top:(y1+y2)/2+ 3});
+			}
+});
+
+
+
+  
 
 vidcc.onclick = function(e) {
 	TEMPS_RATE=$( "#spinner" ).val();
@@ -239,15 +333,33 @@ vidcc.onclick = function(e) {
         user.changeStep(Etape.EtapeFixerDistanceC);    
         p0x = e.clientX + window.pageXOffset;
         p0y = e.clientY + window.pageYOffset;
-        e.preventDefault();
+    
+    
+        point1 = $("<div class='point'></div>").appendTo($("body"));
+		point2 = $("<div class='point'></div>").appendTo($("body"));
+		segment = $("<div class='segment'></div>").appendTo($("body"));
+		
+		var ppptx1 = e.pageX ;//- $(this).left;
+        var pppty1 = e.pageY ;// - $(this).top;
+		//point1.css({left: e.clientX - 3 +window.pageXOffset, top: e.clientY - 3+window.pageYOffset});
+		point1.css({left: ppptx1 - 3, top: pppty1 - 3});
+		point2.css({left: ppptx1- 3, top:pppty1 - 3});
+		segment.css({left:  ppptx1+ 3, top:pppty1 + 3});
+		val=true;
+    
+        e.preventDefault();		
     }
     else if (user.current_step.name==Etape.EtapeFixerDistanceC.name){
             p1x = e.clientX + window.pageXOffset;
             p1y = e.clientY + window.pageYOffset;
             e.preventDefault();
             
+            
+            $(".point").remove();
+            $(".segment").remove();
+            val=false;
+            
             user.changeStep(Etape.EtapeFixerDistance);    
-
         } 
     else if (user.current_step.name==Etape.EtapeChronophotographie.name){
     }

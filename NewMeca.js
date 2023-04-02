@@ -166,9 +166,11 @@ class User{
     			$(".MenuPartDiv").show();
 				$(".VideoPartDiv").show();
 				$( "#draggable_axis" ).draggable({scroll: false,drag: function() {}});
-				$( "#draggable_axis" ).css("top", "-"+ $("#draggable_axis").parent().height()-80+"px");
 				
-				//$( "#obs_div" ).css("top", "-"+ $("#draggable_axis").css("top")+"px");
+				
+				$('#draggable_axis').position({
+  				  of: $('#v0')
+				});
 
 				
 					
