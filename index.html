@@ -42,13 +42,13 @@
 
 <body>
 
-<div class="header">
+<div class="header" id="headerid">
 	<img src="icons/logo_newmeca.jpg"/>
-	<p><b></br></br>Bienvenue dans le logiciel NewMeca </b></br>
-	<small>&copy;2020 Johanna Pasquet</small>
-	</p>
+	<div><b>Bienvenue dans le logiciel NewMeca </b>
+		<small><br>&copy;2020 Johanna Pasquet</small>
+	</div>
 </div>
-
+</br>
 <div class="ChooseVideoDiv">
 Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video" type="file" accept="video/*"> 
 </div>
@@ -127,6 +127,25 @@ Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video"
 
 
 
+
+<script>
+  window.onscroll = function() {scrollFunction()};
+  
+  function scrollFunction() {
+      document.getElementById("headerid").style.height = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+"px";
+      document.getElementsByClassName("ChooseVideoDiv")[0].style.marginTop = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+3+"px";
+      document.getElementsByClassName("MenuPartDiv")[0].style.marginTop = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+3+"px";
+	  if($("#obs_div").css("position") =="relative")
+	  	document.getElementById("obs_div").style.top = "0px";
+	  else
+	  	document.getElementById("obs_div").style.top = Math.max(55, Math.min(260, 260 - $(window).scrollTop()))+160+"px";
+      
+  }
+  
+  
+</script>
+
+
   <script>
   
   $( function() {
@@ -156,9 +175,9 @@ $(document).on("change", "#load_video", function(evt) {
 	var $source = $('#source_video');
 	$source[0].src = URL.createObjectURL(this.files[0]);
 	$source.parent()[0].load();
-	
 	user.changeStep(Etape.EtapeFixerAxes);
-	
+		scrollFunction();
+
   var elements = $('*');
 
   elements.each(function() {
@@ -456,6 +475,9 @@ vidcc.onclick = function(e) {
     	$(".isCheck").removeClass("isCheck");
 		$( "#draggable_axis" ).draggable( "disable", false );
 		$( "#draggable_axis" ).draggable( "enable" );
+		
+		$( "#draggable_axis" ).css( "pointer-events", "auto" );
+
 
 
     } );

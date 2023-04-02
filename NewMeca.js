@@ -178,6 +178,11 @@ class User{
     		case Etape.EtapeFixerDistanceA.name:
     			$( "#choix_axe"  ).attr("disabled", true);
 				$( "#draggable_axis" ).draggable( "disable" );
+				$( "#draggable_axis" ).css( "pointer-events", "none" );
+
+				
+
+				
 				$( ".select_choix_axe" ).attr('disabled', 'disabled');
         		$( "#choix_d" ).attr("disabled", false);
         		$( ".select_choix_axe" ).attr("disabled", true);
@@ -210,6 +215,9 @@ class User{
             	$( "#choix_d" ).attr("disabled", true);
             	$( "#choix_debut" ).attr("disabled", false);
             	$( "#reset_but" ).attr("disabled", false);
+            	
+            	
+
     		break;  
     		
     		
