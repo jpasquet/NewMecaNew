@@ -134,7 +134,9 @@
 /* MENU FIN */
 
 
-
+#dialog-message{
+	z-index:3000;
+}
 
 
 
