@@ -128,22 +128,6 @@ Vous devez choisir la vidéo que vous souhaitez traiter : <input id="load_video"
 
 
 
-<script>
-  window.onscroll = function() {scrollFunction()};
-  
-  function scrollFunction() {
-      document.getElementById("headerid").style.height = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+"px";
-      document.getElementsByClassName("ChooseVideoDiv")[0].style.marginTop = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+3+"px";
-      document.getElementsByClassName("MenuPartDiv")[0].style.marginTop = Math.max(55, Math.min(200, 200 - $(window).scrollTop()))+3+"px";
-	  if($("#obs_div").css("position") =="relative")
-	  	document.getElementById("obs_div").style.top = "0px";
-	  else
-	  	document.getElementById("obs_div").style.top = Math.max(55, Math.min(260, 260 - $(window).scrollTop()))+160+"px";
-      
-  }
-  
-  
-</script>
 
 
   <script>

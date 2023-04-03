@@ -14,7 +14,7 @@
 {
 	display:flex;
 	.transition: height 0.5s;
-	height:200px;
+	height:125px;
 	position:fixed;
 	background-color:white;
 	z-index:10000;
@@ -70,7 +70,7 @@
 
 .MenuPartDiv p{
 	margin:5px;
-	margin-top:10px;
+	margin-top:100px;
 }
 .container_axe{
   display: grid;
@@ -176,7 +176,7 @@
 .VideoPartDiv #obs_div{
 	position: absolute;
 	width:250px;
-	top:310px;
+	top:380px;
 	right:10px;
 	.overflow: auto;
 
